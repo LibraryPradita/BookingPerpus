@@ -1,0 +1,169 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-bottom: 4rem;
+}
+
+.container {
+    flex-grow: 1;
+}
+
+h1 {
+    color: #115a38;
+}
+
+.navbar {
+    background-color: #D32F2F !important;
+    padding: 10px;
+}
+
+.navbar-nav .nav-link {
+    color: white !important;
+    transition: color 0.3s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #333 !important;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    padding-bottom: 60px;
+}
+
+#footer {
+    width: 100%;
+    transition: all 0.3s ease-in-out;
+    padding: 8px 0;
+    font-size: 14px;
+}
+
+.fixed-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
+    padding: 5px 0;
+    font-size: 12px;
+}
+
+#slot-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+    padding: 10px;
+}
+
+.slot {
+    background-color: #4CAF50;
+    border: none;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    width: 50px;
+    height: 50px;
+}
+
+.slot.booked {
+    background-color: #D32F2F;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+#time-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.time-slot {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.available {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.unavailable {
+    background-color: #D32F2F;
+    color: white;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.selected {
+    background-color: #FFA500 !important;
+    color: white;
+}
+
+#jam-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); /* Grid lebih fleksibel */
+    gap: 12px;
+    justify-content: center;
+    margin-top: 15px;
+    padding: 10px;
+}
+
+.time-slot {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 10px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.time-slot.available {
+    background-color: #4CAF50; /* Hijau untuk jam yang tersedia */
+    color: white;
+}
+
+.time-slot.booked {
+    background-color: #D32F2F; /* Merah untuk jam yang sudah dibooking */
+    color: white;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.time-slot.selected {
+    background-color: #FFA500 !important; /* Oranye untuk yang dipilih */
+    color: white;
+    box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+}
+
+.time-slot:hover:not(.booked) {
+    transform: scale(1.15);
+    background-color: #218838 !important;
+    color: white;
+}
