@@ -1,8 +1,11 @@
+/* Global styles */
 body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
     padding-bottom: 4rem;
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
 }
 
 .container {
@@ -27,6 +30,7 @@ h1 {
     color: #333 !important;
 }
 
+/* Full height layout */
 html, body {
     height: 100%;
     margin: 0;
@@ -34,16 +38,21 @@ html, body {
     flex-direction: column;
 }
 
+/* Main content area */
 main {
     flex: 1;
     padding-bottom: 60px;
 }
 
+/* Footer styles */
 #footer {
     width: 100%;
     transition: all 0.3s ease-in-out;
     padding: 8px 0;
     font-size: 14px;
+    text-align: center;
+    background-color: #222;
+    color: white;
 }
 
 .fixed-footer {
@@ -55,115 +64,197 @@ main {
     box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
     padding: 5px 0;
     font-size: 12px;
-}
-
-#slot-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
-    gap: 10px;
-    justify-content: center;
-    margin-top: 10px;
-    padding: 10px;
-}
-
-.slot {
-    background-color: #4CAF50;
-    border: none;
-    padding: 20px;
+    color: white;
     text-align: center;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-    width: 50px;
-    height: 50px;
 }
 
-.slot.booked {
-    background-color: #D32F2F;
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-#time-grid {
+/* Jam container grid */
+#jam-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    grid-template-columns: repeat(7, 1fr);
     gap: 10px;
     justify-content: center;
-    margin-top: 10px;
+    align-items: center;
+    padding: 20px;
 }
 
-.time-slot {
+/* Styles for jam buttons */
+#jam-container button {
     width: 50px;
     height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-size: 14px;
-    border-radius: 5px;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    text-align: center;
+    transition: 0.3s;
 }
 
+/* Warna tombol tersedia */
+#jam-container button.btn-success {
+    background-color: #2D4AFF;
+    color: white;
+}
+
+/* Warna tombol tidak tersedia */
+#jam-container button.btn-secondary {
+    background-color: #444;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+/* Warna saat tombol dipilih */
+#jam-container button.btn-primary {
+    background-color: #FFD700;
+    color: black;
+}
+
+/* Styles for time buttons */
+.jam-button {
+    width: 80px;
+    height: 40px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    transition: 0.3s;
+}
+
+/* Button states for availability */
 .available {
-    background-color: #4CAF50;
+    background-color: blue;
     color: white;
 }
 
 .unavailable {
-    background-color: #D32F2F;
+    background-color: gray;
     color: white;
-    opacity: 0.6;
     cursor: not-allowed;
 }
 
 .selected {
-    background-color: #FFA500 !important;
-    color: white;
+    background-color: yellow;
+    color: black;
+    border: 2px solid black;
 }
 
-#jam-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); /* Grid lebih fleksibel */
-    gap: 12px;
-    justify-content: center;
-    margin-top: 15px;
+/* Pop-up Notification styles */
+.popup {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.popup-content {
+    font-size: 16px;
+    text-align: center;
+}
+
+/* Admin Login Styles */
+.login-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 350px;
+    width: 100%;
+    text-align: center;
+    margin: auto;
+    margin-top: 10%;
+}
+
+h2 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+label {
+    display: block;
+    text-align: left;
+    font-size: 14px;
+    margin: 5px 0;
+    color: #555;
+    font-weight: 500;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+input:focus {
+    border-color: #115a38;
+    outline: none;
+    box-shadow: 0 0 5px rgba(17, 90, 56, 0.3);
+}
+
+button {
+    width: 100%;
     padding: 10px;
-}
-
-.time-slot {
-    width: 70px;
-    height: 70px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: #115a38;
+    color: white;
+    border: none;
+    border-radius: 6px;
     font-size: 16px;
     font-weight: bold;
-    border-radius: 10px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #0e4d2c;
+}
+
+/* Styles for action buttons */
+.aksi-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+}
+
+.aksi-buttons button {
+    width: 100px;
+    padding: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
     border: none;
     cursor: pointer;
+    text-align: center;
+    transition: 0.3s;
 }
 
-.time-slot.available {
-    background-color: #4CAF50; /* Hijau untuk jam yang tersedia */
+.aksi-buttons .acc {
+    background-color: #218838;
     color: white;
 }
 
-.time-slot.booked {
-    background-color: #D32F2F; /* Merah untuk jam yang sudah dibooking */
+.aksi-buttons .reject, 
+.aksi-buttons .delete {
+    background-color: #dc3545;
     color: white;
-    opacity: 0.7;
-    cursor: not-allowed;
 }
 
-.time-slot.selected {
-    background-color: #FFA500 !important; /* Oranye untuk yang dipilih */
-    color: white;
-    box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+.aksi-buttons .acc:hover {
+    background-color: #1e7e34;
 }
 
-.time-slot:hover:not(.booked) {
-    transform: scale(1.15);
-    background-color: #218838 !important;
-    color: white;
+.aksi-buttons .reject:hover, 
+.aksi-buttons .delete:hover {
+    background-color: #c82333;
 }
