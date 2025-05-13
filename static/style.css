@@ -71,23 +71,42 @@ main {
 /* Jam container grid */
 #jam-container {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    gap: 12px;
     justify-content: center;
     align-items: center;
     padding: 20px;
 }
 
+/* Responsive grid for small screens */
+@media (max-width: 768px) {
+    #jam-container {
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    }
+
+    #jam-container button {
+        font-size: 12px;
+    }
+}
+
 /* Styles for jam buttons */
 #jam-container button {
-    width: 50px;
+    width: 100%;
     height: 50px;
     font-size: 14px;
+    font-weight: bold;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     text-align: center;
-    transition: 0.3s;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Hover effect for available buttons */
+#jam-container button:hover:not(.btn-secondary) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 /* Warna tombol tersedia */
@@ -98,8 +117,8 @@ main {
 
 /* Warna tombol tidak tersedia */
 #jam-container button.btn-secondary {
-    background-color: #444;
-    color: #aaa;
+    background-color: #dee2e6;
+    color: #6c757d;
     cursor: not-allowed;
 }
 
@@ -107,6 +126,12 @@ main {
 #jam-container button.btn-primary {
     background-color: #FFD700;
     color: black;
+    border: 2px solid #000;
+}
+
+/* Fokus tombol terpilih */
+#jam-container button.selected:focus {
+    outline: 2px solid #000;
 }
 
 /* Styles for time buttons */
@@ -121,7 +146,6 @@ main {
     transition: 0.3s;
 }
 
-/* Button states for availability */
 .available {
     background-color: blue;
     color: white;
@@ -258,3 +282,32 @@ button:hover {
 .aksi-buttons .delete:hover {
     background-color: #c82333;
 }
+
+/* Durasi */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Tombol aksi admin */
+.btn-action {
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    border-radius: 10px;
+    min-width: 100px;
+    text-align: center;
+}
+

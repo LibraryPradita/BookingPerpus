@@ -3,7 +3,6 @@ from database import get_db
 from email_service.send_email import send_booking_notification
 from google_calendar import create_event
 
-# Definisikan email admin di sini
 ADMIN_EMAIL = "boydeviano75@gmail.com"  # Ganti dengan alamat email admin yang valid
 
 def check_availability(ruangan, tanggal, jam):
@@ -62,14 +61,13 @@ def reject_booking(booking_id):
         cursor.execute("UPDATE bookings SET status = 'REJECTED' WHERE id = ?", (booking_id,))
         db.commit()
 
-        # Ambil email client berdasarkan booking_id
         cursor.execute("SELECT email, ruangan, tanggal, jam FROM bookings WHERE id = ?", (booking_id,))
         booking = cursor.fetchone()
 
         if booking:
             email, ruangan, tanggal, jam = booking
             send_booking_notification(email, ruangan, tanggal, jam, "Rejected")
-            send_booking_notification(ADMIN_EMAIL, ruangan, tanggal, jam, "Rejected")  # Kirim ke admin juga
+            send_booking_notification(ADMIN_EMAIL, ruangan, tanggal, jam, "Rejected")
 
         return {"success": "Booking telah ditolak dan email sudah dikirim."}
 
@@ -77,5 +75,18 @@ def reject_booking(booking_id):
         db.rollback()
         return {"error": f"Gagal menolak booking: {e}"}
 
+    finally:
+        db.close()
+
+def get_booked_times(tanggal, ruangan):
+    db = get_db()
+    cursor = db.cursor()
+    try:
+        cursor.execute("""
+            SELECT jam FROM bookings
+            WHERE tanggal = ? AND ruangan = ? AND status != 'REJECTED'
+        """, (tanggal, ruangan))
+        results = cursor.fetchall()
+        return [row[0] for row in results]
     finally:
         db.close()

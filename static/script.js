@@ -1,112 +1,146 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const jamContainer = document.getElementById("jam-container");
-    const selectedJamInput = document.getElementById("selected-jam");
-    const bookingForm = document.querySelector("form");
-    const tanggalInput = document.getElementById("tanggal");
+document.addEventListener("DOMContentLoaded", () => {
+    const bookingForm = document.getElementById("booking-form");
     const ruanganInput = document.getElementById("ruangan");
+    const tanggalInput = document.getElementById("tanggal");
+    const jamContainer = document.getElementById("jam-container");
+    const selectedJamInput = document.getElementById("jam");
 
-    function loadAvailableTimes() {
-        let tanggal = tanggalInput.value;
-        let ruangan = ruanganInput.value;
+    const jumlahOrangInput = document.getElementById("jumlah_orang");
+    const durasiInput = document.getElementById("durasi");
+
+    function createJamButton(waktu, available) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "btn m-1 jam-btn";
+        button.textContent = waktu;
+
+        if (available) {
+            button.classList.add("btn-outline-success");
+            button.disabled = false;
+            button.addEventListener("click", () => {
+                document.querySelectorAll(".jam-btn").forEach(btn => {
+                    btn.classList.remove("active", "btn-success");
+                    btn.classList.add("btn-outline-success");
+                });
+
+                button.classList.remove("btn-outline-success");
+                button.classList.add("btn-success", "active");
+                selectedJamInput.value = waktu;
+            });
+        } else {
+            button.classList.add("btn-secondary", "unavailable");
+            button.disabled = true;
+        }
+
+        return button;
+    }
+
+    async function fetchAvailableTimes() {
+        const ruangan = ruanganInput.value;
+        const tanggal = tanggalInput.value;
+
+        jamContainer.innerHTML = "";
+        selectedJamInput.value = "";
 
         if (!ruangan || !tanggal) return;
 
-        jamContainer.innerHTML = '<p class="text-center">Memuat slot jam...</p>';
+        try {
+            const res = await fetch(`/get_available_times?ruangan=${encodeURIComponent(ruangan)}&tanggal=${encodeURIComponent(tanggal)}`);
+            const result = await res.json();
 
-        fetch(`/get_available_times?ruangan=${ruangan}&tanggal=${tanggal}`)
-            .then(response => response.json())
-            .then(data => {
-                jamContainer.innerHTML = "";
-
-                if (!data.jam.length) {
-                    jamContainer.innerHTML = '<p class="text-danger text-center">Tidak ada slot tersedia.</p>';
-                    return;
-                }
-
-                jamContainer.style.display = "grid";
-                jamContainer.style.gridTemplateColumns = "repeat(auto-fill, minmax(80px, 1fr))";
-                jamContainer.style.gap = "10px";
-                jamContainer.style.justifyContent = "center";
-
-                data.jam.forEach(({ waktu, available }) => {
-                    let button = document.createElement("button");
-                    button.className = `btn ${available ? "btn-success" : "btn-secondary"}`;
-                    button.innerText = waktu.padStart(5, "0");
-                    button.disabled = !available;
-                    Object.assign(button.style, {
-                        padding: "12px",
-                        fontSize: "14px",
-                        textAlign: "center",
-                        borderRadius: "10px",
-                        minWidth: "80px"
-                    });
-
-                    button.addEventListener("click", function (event) {
-                        event.preventDefault();
-                        document.querySelectorAll("#jam-container button").forEach(btn => {
-                            btn.classList.remove("btn-primary");
-                            btn.style.border = "none";
-                        });
-                        button.classList.add("btn-primary");
-                        button.style.border = "3px solid #fff";
-                        selectedJamInput.value = waktu;
-                    });
-
-                    jamContainer.appendChild(button);
+            if (Array.isArray(result.jam)) {
+                result.jam.forEach(({ waktu, available }) => {
+                    jamContainer.appendChild(createJamButton(waktu, available));
                 });
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                jamContainer.innerHTML = '<p class="text-danger text-center">Gagal memuat data.</p>';
-            });
+            }
+        } catch (err) {
+            console.error("❌ Gagal mengambil jam tersedia:", err);
+        }
     }
 
-    bookingForm.addEventListener("submit", function (event) {
-        event.preventDefault();
+    ruanganInput.addEventListener("change", fetchAvailableTimes);
+    tanggalInput.addEventListener("change", fetchAvailableTimes);
 
-        if (!selectedJamInput.value) {
-            alert("Pilih jam terlebih dahulu sebelum booking!");
+    bookingForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const jumlah_orang = parseInt(jumlahOrangInput.value, 10);
+        const durasi = parseInt(durasiInput.value, 10);
+
+        const data = {
+            nama: document.getElementById("nama").value.trim(),
+            nim: document.getElementById("nim").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            ruangan: ruanganInput.value.trim(),
+            tanggal: tanggalInput.value.trim(),
+            jam: selectedJamInput.value.trim(),
+            durasi,
+            jumlah_orang
+        };
+
+        if (!data.nama || !data.nim || !data.email || !data.ruangan || !data.tanggal || !data.jam) {
+            alert("⚠️ Harap lengkapi semua data.");
             return;
         }
 
-        let formData = new FormData(bookingForm);
+        if (isNaN(jumlah_orang) || jumlah_orang <= 0 || isNaN(durasi) || durasi <= 0) {
+            alert("⚠️ Jumlah orang dan durasi harus lebih dari 0.");
+            return;
+        }
 
-        fetch("/booking", { method: "POST", body: formData })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    showPopup(data.message);
-                    resetForm();
-                    loadAvailableTimes();  // Reload pilihan jam setelah reset
-                }
-            })
-            .catch(error => console.error("Error:", error));
+        const submitBtn = bookingForm.querySelector("button[type='submit']");
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Mengirim...";
+
+        try {
+            const res = await fetch("/booking", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+
+            if (res.ok && result.success) {
+                alert("✅ Booking berhasil!");
+                bookingForm.reset();
+                jamContainer.innerHTML = "";
+                selectedJamInput.value = "";
+            } else {
+                alert("❌ " + (result.message || "Booking gagal."));
+            }
+        } catch (err) {
+            alert("❌ Terjadi kesalahan saat mengirim booking.");
+            console.error(err);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Booking Sekarang";
+        }
     });
 
-    function showPopup(message) {
-        let popup = document.createElement("div");
-        Object.assign(popup.style, {
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            background: "rgba(0,0,0,0.8)",
-            color: "white",
-            padding: "15px 30px",
-            borderRadius: "5px",
-            zIndex: "1000",
-            textAlign: "center"
+   // ✅ Admin actions: ACC, CANCEL, REJECT, DELETE
+   document.querySelectorAll(".delete-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            const bookingId = this.dataset.id;
+            if (!confirm("Apakah Anda yakin ingin menghapus booking ini?")) return;
+
+            fetch("/update_booking", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({ booking_id: bookingId, action: "DELETE" })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    document.getElementById(`row-${bookingId}`).remove();
+                } else {
+                    alert(data.message || "Gagal menghapus booking.");
+                }
+            })
+            .catch(err => {
+                console.error("❌ Error:", err);
+                alert("Gagal menghapus booking.");
+            });
         });
-        popup.innerText = message;
-        document.body.appendChild(popup);
-        setTimeout(() => popup.remove(), 5000);
-    }
-
-    function resetForm() {
-        bookingForm.reset();  
-        selectedJamInput.value = "";  
-        jamContainer.innerHTML = "";  
-    }
-
-    [ruanganInput, tanggalInput].forEach(input => input.addEventListener("change", loadAvailableTimes));
+    });
 });

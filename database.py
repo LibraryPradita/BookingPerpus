@@ -1,22 +1,20 @@
-from sqlalchemy import create_engine, Column, Integer, String, Date, Enum, CheckConstraint, text
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy import create_engine, Column, Integer, String, Date, Enum, CheckConstraint, Text, text
+from sqlalchemy.orm import declarative_base, sessionmaker, scoped_session
 import enum
-import contextlib
 
+# URL untuk SQLite lokal
 DATABASE_URL = "sqlite:///./booking.db"
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+# Engine SQLAlchemy
+engine = create_engine(
+    DATABASE_URL, connect_args={"check_same_thread": False}
+)
 
-@contextlib.contextmanager
-def get_db():
-    """Membuat session baru untuk setiap permintaan ke database."""
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# Session factory
+SessionLocal = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
+
+# Base class
+Base = declarative_base()
 
 class BookingStatus(str, enum.Enum):
     PENDING = "Pending"
@@ -35,10 +33,11 @@ class Booking(Base):
     tanggal = Column(Date, index=True, nullable=False)
     jam = Column(String, index=True, nullable=False)
     jumlah_orang = Column(Integer, CheckConstraint("jumlah_orang > 0"), nullable=False)
+    durasi = Column(Integer, CheckConstraint("durasi > 0"), nullable=False)
     status = Column(Enum(BookingStatus), default=BookingStatus.PENDING, nullable=False)
 
     def __repr__(self):
-        return f"<Booking(id={self.id}, nama={self.nama}, tanggal={self.tanggal}, jam={self.jam}, status={self.status}, jumlah_orang={self.jumlah_orang})>"
+        return f"<Booking(id={self.id}, nama={self.nama}, tanggal={self.tanggal}, jam={self.jam}, durasi={self.durasi}, status={self.status}, jumlah_orang={self.jumlah_orang})>"
 
 class Admin(Base):
     __tablename__ = "admins"
@@ -47,7 +46,6 @@ class Admin(Base):
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
 
-# ✅ Memastikan skema database diperbarui tanpa menghapus data
 def update_database():
     with engine.connect() as conn:
         existing_columns = conn.execute(text("PRAGMA table_info(bookings)")).fetchall()
@@ -63,10 +61,18 @@ def update_database():
             conn.execute(text("ALTER TABLE bookings ADD COLUMN status TEXT DEFAULT 'Pending'"))
             conn.commit()
 
-    with get_db() as db:
-        db.query(Booking).filter(Booking.status == "Rejected").update({"status": BookingStatus.REJECTED})
-        db.commit()
+        if "durasi" not in column_names:
+            print("⚠️ Menambahkan kolom 'durasi' ke tabel bookings...")
+            conn.execute(text("ALTER TABLE bookings ADD COLUMN durasi INTEGER DEFAULT 1"))
+            conn.commit()
+
+    session = SessionLocal()
+    try:
+        session.query(Booking).filter(Booking.status == "Rejected").update({"status": BookingStatus.REJECTED})
+        session.commit()
         print("✅ Database diperbarui dengan status 'Rejected'!")
+    finally:
+        session.close()
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)
