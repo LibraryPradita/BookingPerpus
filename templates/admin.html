@@ -89,14 +89,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
             fetch("/update_booking", {
                 method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
                 body: new URLSearchParams({ booking_id: bookingId, action: "DELETE" })
             })
             .then(res => res.json())
             .then(data => {
-                if (data.deleted) {
+                if (data.status === "success") {
                     document.getElementById(`row-${bookingId}`).remove();
-                    showPopup("Booking telah dihapus.");
+                    showPopup(data.message || "Booking telah dihapus.");
+                } else {
+                    showPopup(data.message || "Gagal menghapus booking.");
                 }
             })
             .catch(err => {
@@ -117,6 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 </script>
+
 
 </body>
 </html>

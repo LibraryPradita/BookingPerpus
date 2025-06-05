@@ -138,14 +138,14 @@ def update_booking():
     action = request.form.get("action")
 
     if not booking_id or action not in ["ACC", "CANCEL", "REJECT", "DELETE"]:
-        if request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return jsonify({"status": "error", "message": "Aksi tidak valid!"}), 400
         flash("⚠ Aksi tidak valid!", "danger")
         return redirect(url_for("admin_dashboard"))
 
     booking = db.session.query(Booking).filter_by(id=booking_id).first()
     if not booking:
-        if request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return jsonify({"status": "error", "message": "Booking tidak ditemukan!"}), 404
         flash("❌ Booking tidak ditemukan!", "danger")
         return redirect(url_for("admin_dashboard"))
@@ -197,17 +197,18 @@ def update_booking():
 
         db.session.commit()
 
-        if request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return jsonify({"status": status, "message": msg})
 
     except Exception as e:
         db.session.rollback()
         print("[ERROR]", e)
-        if request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return jsonify({"status": "error", "message": f"Terjadi error: {str(e)}"}), 500
         flash(f"❗ Terjadi error saat memproses booking: {str(e)}", "danger")
 
     return redirect(url_for("admin_dashboard"))
+
     
 if __name__ == "__main__":
     with app.app_context():
